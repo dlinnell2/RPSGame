@@ -13,13 +13,17 @@ $(document).ready(function () {
     var pOneDb;
     var pTwoDb;
 
-    $(document).on('click', makePlayer);
+    db.ref().on('value', function (snap){
+
+        console.log('it changed');
+
+    })
 
     function makePlayer() {
 
         playerName = 'Chuck'
 
-        db.ref('one').set({
+        db.ref('/one').set({
             name: playerName,
             wins: 0,
             losses: 0,
@@ -30,5 +34,7 @@ $(document).ready(function () {
 
 
     }
+
+    $(document).on('click', makePlayer);
 
 });
