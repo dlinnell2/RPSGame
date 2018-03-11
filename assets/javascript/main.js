@@ -13,24 +13,49 @@ $(document).ready(function () {
     var pOneDb;
     var pTwoDb;
 
-    db.ref().on('value', function (snap){
+    var playOneExist = false;
+
+    db.ref('/one').on('value', function (snap) {
 
         console.log('it changed');
 
-    })
+    });
+
+    db.ref('/two').on('value', function (snap) {
+
+        console.log('Number two!')
+
+    });
 
     function makePlayer() {
 
-        playerName = 'Chuck'
+        if (playOneExist) {
 
-        db.ref('/one').set({
-            name: playerName,
-            wins: 0,
-            losses: 0,
-            ties: 0,
-        })
+            var playerName = 'Charles'
 
-        pOneDb = db.ref('one');
+            db.ref('/two').set({
+                name: playerName,
+                wins: 0,
+                losses: 0,
+                ties: 0,
+            });
+
+        } else {
+
+            var playerName = 'Chuck'
+
+            db.ref('/one').set({
+                name: playerName,
+                wins: 0,
+                losses: 0,
+                ties: 0,
+            });
+
+            pOneDb = db.ref('/one');
+
+            playOneExist = true;
+
+        };
 
 
     }
