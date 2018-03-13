@@ -134,31 +134,28 @@ $(document).ready(function () {
 
     function playerOneWins() {
 
+        // Update player one's wins on database
         var playWins = playerOne.wins;
-
         playWins++
-
         db.ref().child('/one/wins').set(playWins);
 
+        // Update player two's loss on database
         var playLoss = playerTwo.losses;
-
         playLoss++
-
         db.ref().child('/two/losses').set(playLoss);
+
     }
 
     function playerTwoWins() {
 
+        // Update player two's wins on database
         var playWins = playerTwo.wins;
-
         playWins++
-
         db.ref().child('/two/wins').set(playWins);
 
+        // Update player one's loss on database
         var playLoss = playerOne.losses;
-
         playLoss++
-
         db.ref().child('/one/losses').set(playLoss);
     }
 
@@ -180,7 +177,26 @@ $(document).ready(function () {
                 playerTwoWins(); 
             }
 
-        };
+        } else if (playerOneChoice === 'scissors') {
+
+            if (playerTwoChoice === 'paper') {
+                playerOneWins();
+
+            } else if (playerTwoChoice === 'rock') {
+                playerTwoWins();
+
+            }
+
+        } else if (playerOneChoice === 'paper') {
+
+            if (playerTwoChoice === 'rock') {
+                playerOneWins();
+
+            } else if (playerTwoChoice === 'scissors') {
+                playerTwoWins();
+                
+            }
+        }
 
     };
 
