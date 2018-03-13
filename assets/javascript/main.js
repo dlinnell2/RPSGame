@@ -35,7 +35,7 @@ $(document).ready(function () {
 
         event.preventDefault();
 
-        if(playOneExist && playTwoExist) {
+        if (playOneExist && playTwoExist) {
 
             $('#outcome').text('Let\'s begin!');
 
@@ -73,31 +73,69 @@ $(document).ready(function () {
     }
 
     // Running of game for player One
-    function gamePlayerOne (){
+    function gamePlayerOne() {
 
+        // Set text for player one's choices
         $('#rockOne').text('rock');
         $('#paperOne').text('paper');
         $('#scissorsOne').text('scissors')
 
+        // Show the choices
         $('.choiceOne').show();
         $('#waitingOne').hide();
 
+        // Set text for player two's status
         $('#waitingTwo').text('Waiting on ' + playerOne.name);
 
+        // Show the status
         $('#waitingTwo').show();
         $('.choiceTwo').hide();
 
-        $('.choiceOne').on('click', function(){
+        // Once player one has clicked their selection
+        $('.choiceOne').on('click', function () {
 
             playerOneChoice = $(this).text();
 
-            $('waitingOne').text('Waiting on ' + playerTwo.name);
-
-            $('choiceOne').hide();
-            $('#waitingOne').show();
-
+            gamePlayerTwo();
 
         })
+
+    }
+
+    // Running of game for player Two
+    function gamePlayerTwo() {
+
+        // Set text for player two's choices
+        $('#rockTwo').text('rock');
+        $('#paperTwo').text('paper');
+        $('#scissorsTwo').text('scissors')
+
+        // Show the choices
+        $('.choiceTwo').show();
+        $('#waitingTwo').hide();
+
+        // Set text for player two's status
+        $('#waitingOne').text('Waiting on ' + playerTwo.name);
+
+        // Show the status
+        $('#waitingOne').show();
+        $('.choiceOne').hide();
+
+        // Once player one has clicked their selection
+        $('.choiceTwo').on('click', function () {
+
+            playerTwoChoice = $(this).text();
+
+            outcome();
+
+        });
+
+    };
+
+    // Evaluate a winner
+    function outcome(){
+
+        $('#waitingOne, .choiceTwo').hide();
 
     }
 
