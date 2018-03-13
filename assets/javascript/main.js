@@ -2,32 +2,47 @@ $(document).ready(function () {
 
     var db = firebase.database();
 
-    //var playerOneWins;
-    //var playerOneLosses;
-    //var playerOneName;
-    //var playerTwoWins;
-    //var playerTwoLosses;
-    //var PlayerTwoName;
+    var playerOne;
+    var playerTwo;
     var playerTie;
 
     var pOneDb;
     var pTwoDb;
 
-    var playOneExist = false;
+    var playOneExist;
+    var playTwoExist;
 
-    db.ref('/one').on('value', function (snap) {
+    var turn;
 
-        console.log('it changed');
+    db.ref().on('value', function (snap) {
 
-    });
+        playOneExist = snap.child('/one').exists();
 
-    db.ref('/two').on('value', function (snap) {
+        playTwoExist = snap.child('/two').exists();
 
-        console.log('Number two!')
+        if (playOneExist && playTwoExist) {
+            console.log('Begin!');
+
+
+            db.ref('/turn').set({
+                turn : 1,
+            });
+
+            turn = snap.child('/turn').val();
+
+            gameplay();
+        }        
+
+
+    }, function (errorObject) {
+
+        console.log("The read failed: " + errorObject.code);
 
     });
 
     function makePlayer() {
+
+        console.log(playOneExist);
 
         if (playOneExist) {
 
@@ -40,6 +55,8 @@ $(document).ready(function () {
                 ties: 0,
             });
 
+            playerTwo = db.ref('/two');
+
         } else {
 
             var playerName = 'Chuck'
@@ -51,15 +68,27 @@ $(document).ready(function () {
                 ties: 0,
             });
 
-            pOneDb = db.ref('/one');
+            playerOne = db.ref('/one');
 
-            playOneExist = true;
+
 
         };
 
 
     }
 
-    $(document).on('click', makePlayer);
+    $('#one').on('click', makePlayer);
+
+    function gameplay (){
+
+        if (turn=1){
+            console.log('First')
+            
+
+        } else if (turn=2) {
+            console.log('Second')
+        }
+    }
+
 
 });
