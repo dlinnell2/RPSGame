@@ -6,8 +6,8 @@ $(document).ready(function () {
     var playerTwo;
     var playerTie;
 
-    var pOneDb;
-    var pTwoDb;
+    var playerOneChoice;
+    var playerTwoChoice;
 
     var playOneExist;
     var playTwoExist;
@@ -20,19 +20,9 @@ $(document).ready(function () {
 
         playTwoExist = snap.child('/two').exists();
 
-        if (playOneExist && playTwoExist) {
-            console.log('Begin!');
+        playerOne = snap.child('/one').val();
 
-
-            db.ref('/turn').set({
-                turn : 1,
-            });
-
-            turn = snap.child('/turn').val();
-
-            gameplay();
-        }        
-
+        playerTwo = snap.child('/two').val();
 
     }, function (errorObject) {
 
@@ -40,13 +30,20 @@ $(document).ready(function () {
 
     });
 
+    // Making new players
     function makePlayer() {
 
-        console.log(playOneExist);
+        event.preventDefault();
 
-        if (playOneExist) {
+        if(playOneExist && playTwoExist) {
 
-            var playerName = 'Charles'
+            $('#outcome').text('Let\'s begin!');
+
+            setTimeout(gamePlayerOne, 1000);
+
+        } else if (playOneExist) {
+
+            var playerName = $('#newPlayer').val().trim();
 
             db.ref('/two').set({
                 name: playerName,
@@ -55,11 +52,13 @@ $(document).ready(function () {
                 ties: 0,
             });
 
-            playerTwo = db.ref('/two');
+            $('#outcome').text('Let\'s begin!');
+
+            setTimeout(gamePlayerOne, 1000);
 
         } else {
 
-            var playerName = 'Chuck'
+            var playerName = $('#newPlayer').val().trim();
 
             db.ref('/one').set({
                 name: playerName,
@@ -68,27 +67,41 @@ $(document).ready(function () {
                 ties: 0,
             });
 
-            playerOne = db.ref('/one');
-
-
-
         };
 
 
     }
 
-    $('#one').on('click', makePlayer);
+    // Running of game for player One
+    function gamePlayerOne (){
 
-    function gameplay (){
+        $('#rockOne').text('rock');
+        $('#paperOne').text('paper');
+        $('#scissorsOne').text('scissors')
 
-        if (turn=1){
-            console.log('First')
-            
+        $('.choiceOne').show();
+        $('#waitingOne').hide();
 
-        } else if (turn=2) {
-            console.log('Second')
-        }
+        $('#waitingTwo').text('Waiting on ' + playerOne.name);
+
+        $('#waitingTwo').show();
+        $('.choiceTwo').hide();
+
+        $('.choiceOne').on('click', function(){
+
+            playerOneChoice = $(this).text();
+
+            $('waitingOne').text('Waiting on ' + playerTwo.name);
+
+            $('choiceOne').hide();
+            $('#waitingOne').show();
+
+
+        })
+
     }
+
+    $('#makePlayer').on('click', makePlayer);
 
 
 });

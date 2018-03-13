@@ -30,7 +30,8 @@
     <script src='./assets/javascript/main.js'></script>
 
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
 
     <!-- Local CSS -->
     <link rel="stylesheet" href="./assets/css/style.css">
@@ -39,13 +40,25 @@
 
 <body>
 
-    <div id="enterName"></div>
+    <div id='enterName'>
+
+        <form>
+            <div class="form-group">
+                <label for="newPlayerName">Enter your name here</label>
+                <input type="name" class="form-control" id="newPlayer" placeholder="Enter your name">
+            </div>
+            <button type="submit" id='makePlayer' class="btn btn-primary">Make a new player!</button>
+        </form>
+
+    </div>
 
     <div id='playerOneGame'>
 
-        <div class='choice'></div>
-        <div class='choice'></div>
-        <div class='choice'></div>
+
+        <div class='choiceOne' id='rockOne'></div>
+        <div class='choiceOne' id='paperOne'></div>
+        <div class='choiceOne' id='scissorsOne'></div>
+        <div id='waitingOne'></div>
 
     </div>
 
@@ -53,9 +66,10 @@
 
     <div id='playerTwoGame'>
 
-        <div class='choice'></div>
-        <div class='choice'></div>
-        <div class='choice'></div>
+        <div class='choiceTwo' id='rockTwo'></div>
+        <div class='choiceTwo' id='paperTwo'></div>
+        <div class='choiceTwo' id='scissorsTwo'></div>
+        <div id='waitingTwo'></div>
 
 
     </div>
