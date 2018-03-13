@@ -133,11 +133,26 @@ $(document).ready(function () {
     };
 
     // Evaluate a winner
-    function outcome(){
+    function outcome() {
 
         $('#waitingOne, .choiceTwo').hide();
 
-    }
+        if (playerOneChoice === playerTwoChoice) {
+
+            console.log('tie')
+
+        } else if (playerOneChoice === 'rock') {
+
+            if (playerTwoChoice === 'scissors') {
+                var playWins = playerOne.wins;
+                playWins++
+                db.ref().child('/one/wins').set
+                (playWins);
+
+            };
+        };
+
+    };
 
     $('#makePlayer').on('click', makePlayer);
 
