@@ -132,6 +132,36 @@ $(document).ready(function () {
 
     };
 
+    function playerOneWins() {
+
+        var playWins = playerOne.wins;
+
+        playWins++
+
+        db.ref().child('/one/wins').set(playWins);
+
+        var playLoss = playerTwo.losses;
+
+        playLoss++
+
+        db.ref().child('/two/losses').set(playLoss);
+    }
+
+    function playerTwoWins() {
+
+        var playWins = playerTwo.wins;
+
+        playWins++
+
+        db.ref().child('/two/wins').set(playWins);
+
+        var playLoss = playerOne.losses;
+
+        playLoss++
+
+        db.ref().child('/one/losses').set(playLoss);
+    }
+
     // Evaluate a winner
     function outcome() {
 
@@ -144,12 +174,12 @@ $(document).ready(function () {
         } else if (playerOneChoice === 'rock') {
 
             if (playerTwoChoice === 'scissors') {
-                var playWins = playerOne.wins;
-                playWins++
-                db.ref().child('/one/wins').set
-                (playWins);
+                playerOneWins();
 
-            };
+            } else if (playerTwoChoice === 'paper') {
+                playerTwoWins(); 
+            }
+
         };
 
     };
