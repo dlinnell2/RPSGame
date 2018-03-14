@@ -1,6 +1,16 @@
-div {
-    background-color: grey;
-    margin: 5px;
-    min-width: 50px;
-    min-height: 50px;
+body {
+    background-color: rgb(146, 212, 250);
 }
+
+div {
+    background-color: rgb(151, 151, 151);
+}
+
+#gameplay {
+    min-height: 200px;
+}
+
+#outcome, .player {
+    border: 2px solid black;
+}
+
