@@ -1,27 +1,24 @@
 $(document).ready(function () {
 
-    var db = firebase.database();
+    
 
     var playerOneChoice;
     var playerTwoChoice;
-
     var playerOne;
     var playerTwo;
-
     var playerName;
 
+    var db = firebase.database();
     var turn = db.ref('/turn')
-
     var choices = db.ref('/choice');
+    var chat = db.ref('/chat')
 
     db.ref('/users').on('value', function (snap) {
 
         playOneExist = snap.child('/one').exists();
-
-        playTwoExist = snap.child('/two').exists();
-
         playerOne = snap.child('/one').val();
 
+        playTwoExist = snap.child('/two').exists();
         playerTwo = snap.child('/two').val();
 
         if (playOneExist && playTwoExist) {
@@ -41,7 +38,11 @@ $(document).ready(function () {
         }
 
         if (!playOneExist || !playTwoExist) {
-            turn.set(1);
+            turn.remove();
+        }
+
+        if (!playOneExist && !playTwoExist) {
+            chat.remove();
         }
 
         console.log(playOneExist);
@@ -357,7 +358,19 @@ $(document).ready(function () {
 
     };
 
+    function newChat (){
+
+        event.preventDefault();
+
+        var newRow = $('<div>')
+        var message = $('#chatMessage').val().trim();
+        newRow.text(message);
+        newRow.appendTo('#chatWindow');
+    }
+
     $('#makePlayer').on('click', makePlayer);
+
+    $('#newChat').on('click', newChat);
 
 
 });

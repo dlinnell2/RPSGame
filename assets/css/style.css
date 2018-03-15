@@ -16,11 +16,12 @@ div {
 }
 
 .chat {
-    max-height: 300px;
     border: 2px solid black;
 }
 
 #chatWindow {
+    height:150px;
+    overflow: auto;
     background-color: white;
 }
 
