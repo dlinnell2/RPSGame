@@ -39,13 +39,12 @@ $(document).ready(function () {
 
         if (!playOneExist || !playTwoExist) {
             turn.remove();
+            choices.remove();
         }
 
         if (!playOneExist && !playTwoExist) {
             chat.remove();
         }
-
-        console.log(playOneExist);
 
     }, function (errorObject) {
 
@@ -55,14 +54,14 @@ $(document).ready(function () {
 
     turn.on('value', function (snap) {
 
-        console.log(snap.val());
-
         if (snap.val() === 2) {
             gamePlayerTwo();
+
         } else if (snap.val() === 3) {
             outcome();
         }
-    })
+
+    });
 
     choices.on('value', function (snap) {
 
@@ -74,6 +73,22 @@ $(document).ready(function () {
             playerTwoChoice = snap.child('/playerTwo').val();
         }
 
+    })
+
+    chat.on('child_added', function (snap){
+        var message = snap.val();
+        var newChat = $('<div>').text(message).attr('class', 'chatMessage');
+
+        
+        if (message.includes('joined')){
+            newChat.addClass('joined');
+        } else if (message.includes('disconnected')){
+            newChat.addClass('left');
+        } else if (message.startsWith(playerName)){
+            newChat.addClass('yourChat');
+        };
+
+        newChat.appendTo('#chatWindow');
     })
 
 
@@ -105,10 +120,9 @@ $(document).ready(function () {
 
                 $('#newPlayer').val('');
 
-
                 turn.set(1);
 
-                console.log(playerName);
+                chat.push(playerName + ' has joined!')
 
             } else if (!playTwoExist) {
 
@@ -129,9 +143,9 @@ $(document).ready(function () {
 
                 $('#newPlayer').val('');
 
-                console.log(playerName);
-
                 turn.set(1);
+
+                chat.push(playerName + ' has joined!')
 
             };
 
@@ -361,11 +375,10 @@ $(document).ready(function () {
     function newChat (){
 
         event.preventDefault();
-
-        var newRow = $('<div>')
-        var message = $('#chatMessage').val().trim();
-        newRow.text(message);
-        newRow.appendTo('#chatWindow');
+        
+        var message = playerName + ': ' + $('#chatMessage').val().trim();
+        chat.push(message);
+        
     }
 
     $('#makePlayer').on('click', makePlayer);

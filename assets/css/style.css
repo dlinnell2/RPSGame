@@ -25,3 +25,19 @@ div {
     background-color: white;
 }
 
+.joined {
+    color: green;
+}
+
+.left {
+    color: red;
+}
+
+.yourChat {
+    color: blue;
+}
+
+.chatMessage {
+    background-color:white;
+    font-size: 12px;
+}
