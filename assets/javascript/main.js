@@ -24,9 +24,6 @@ $(document).ready(function () {
             $('#starting').text('We have two players! Time to begin!');
             $('#starting').show();
 
-            $('#outcome').hide();
-            $('#status').hide();
-
             $('#pOneWin').text(playerOne.wins);
             $('#pOneLoss').text(playerOne.losses);
             $('#pOneTie').text(playerOne.ties);
@@ -42,7 +39,8 @@ $(document).ready(function () {
             turn.remove();
             choices.remove();
 
-            $('#outcome').text('Waiting on players');
+            $('#starting').text('Waiting on players');
+            $('#starting').show();
 
         }
 
@@ -109,7 +107,10 @@ $(document).ready(function () {
             newChat.addClass('yourChat');
         };
 
+        if (playerName === playerOne.name || playerName === playerTwo.name) {
         newChat.appendTo('#chatWindow');
+        $('#chatWindow').scrollTop($('#chatWindow')[0].scrollHeight);
+        };
     })
 
 
@@ -160,6 +161,8 @@ $(document).ready(function () {
 
                 player.onDisconnect().remove();
 
+                $('#status').text('Welcome ' + playerName + '!');
+
                 $('#currentPlayer').text('Current Player: ' + playerName);
 
                 $('#newPlayer').val('');
@@ -182,6 +185,7 @@ $(document).ready(function () {
     // Running of game for player One
     function gamePlayerOne() {
 
+        $('#outcome').hide();
         $('#starting').hide();
 
         if (playerName === playerOne.name) {
@@ -306,6 +310,8 @@ $(document).ready(function () {
 
         }, 4000);
 
+        turn.set(1);
+
     };
 
     function playerTwoWins() {
@@ -329,13 +335,17 @@ $(document).ready(function () {
             db.ref().child('/users/one/losses').set(playLoss);
 
         }, 4000);
+
+        turn.set(1);
     };
 
     function tie() {
 
         //Display that players tied in outcome
         $('#outcome').text('Tie!')
+        $('#outcome').show();
         $('#status').text('Stay put! A new game will begin shortly!')
+
 
         // After 2 seconds, update information in database, will trigger new game
         setTimeout(function () {
@@ -345,7 +355,9 @@ $(document).ready(function () {
             db.ref().child('/users/one/ties').set(tie);
             db.ref().child('/users/two/ties').set(tie);
 
-        }, 2000);
+        }, 4000);
+
+        turn.set(1);
 
     };
 
@@ -359,13 +371,7 @@ $(document).ready(function () {
         $('#waitingTwo').show();
         $('#waitingOne').show();
 
-        console.log('hitting outcome function');
-
-        console.log(playerOneChoice, playerTwoChoice);
-
         if (playerOneChoice === playerTwoChoice) {
-
-            console.log('getting into tie');
 
             tie();
 
@@ -405,17 +411,22 @@ $(document).ready(function () {
     function newChat (){
 
         event.preventDefault();
+
+        if (playerName){
         
         var message = playerName + ': ' + $('#chatMessage').val().trim();
         chat.push(message);
+
+        } else {
+            alert('Please enter your name to begin playing!');
+        }
+
+        $('#chatMessage').val('');
         
     }
 
     $('#makePlayer').on('click', makePlayer);
 
     $('#newChat').on('click', newChat);
-
-    $('#chatWindow').empty();
-
 
 });
