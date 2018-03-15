@@ -1,29 +1,37 @@
 $(document).ready(function () {
 
+    // Global variables
     var playerOneChoice;
     var playerTwoChoice;
     var playerOne;
     var playerTwo;
     var playerName;
 
+    // Commonly used database paths
     var db = firebase.database();
     var turn = db.ref('/turn')
     var choices = db.ref('/choice');
     var chat = db.ref('/chat');
     var users = db.ref('/users');
 
+    // Used to check if both players are present, triggers new game when so
     users.on('value', function (snap) {
 
+        // Setting variables to check if a player exists and designating a player to a database path
         playOneExist = snap.child('/one').exists();
         playerOne = snap.child('/one').val();
 
         playTwoExist = snap.child('/two').exists();
         playerTwo = snap.child('/two').val();
 
+        // If both players are present
         if (playOneExist && playTwoExist) {
+            
+            // Let players know the game is about to start
             $('#starting').text('We have two players! Time to begin!');
             $('#starting').show();
 
+            // Updating live win/loss/tie counts for each user
             $('#pOneWin').text(playerOne.wins);
             $('#pOneLoss').text(playerOne.losses);
             $('#pOneTie').text(playerOne.ties);
@@ -32,9 +40,11 @@ $(document).ready(function () {
             $('#pTwoLoss').text(playerTwo.losses);
             $('#pTwoTie').text(playerTwo.ties);
 
+            // Trigger new game after 2 seconds - gives players time to realize game is starting
             setTimeout(gamePlayerOne, 2000);
         }
 
+        // If either player leaves, or if we are still waiting on one
         if (!playOneExist || !playTwoExist) {
             turn.remove();
             choices.remove();
@@ -44,26 +54,32 @@ $(document).ready(function () {
 
         }
 
+        // If both players leave, completely clear chat
         if (!playOneExist && !playTwoExist) {
             chat.remove();
         }
 
+        // If the connection to the database fails
     }, function (errorObject) {
 
         console.log("The read failed: " + errorObject.code);
 
     });
 
+    // Triggers when a user leaves the came
     users.on('child_removed', function (snap){
-        player = snap.val().name;
 
+        // Grab that users name and send a message on chat
+        player = snap.val().name;
         chat.push(player + ' has disconnected!')
 
+        // Hide all choices and any other messages so that other user cannot miss their opponent left
         $('#waitingOne').hide();
         $('#waitingTwo').hide();
         $('.choiceOne').hide();
         $('.choiceTwo').hide();
 
+        // Display a status only to the player that is still connected
         if (playerName === playerOne.name || playerName === playerTwo.name){
         $('#status').text('Sorry! Your opponent has left the game! Waiting for another to join');
         $('#status').show();
@@ -71,8 +87,10 @@ $(document).ready(function () {
 
     })
 
+    // Triggers when the turn number changes
     turn.on('value', function (snap) {
 
+        // Turn is used only to change to player two's turn and to determine a winner, a turn of one has no action
         if (snap.val() === 2) {
             gamePlayerTwo();
 
@@ -82,8 +100,10 @@ $(document).ready(function () {
 
     });
 
+    // Updates when a player makes a choice
     choices.on('value', function (snap) {
 
+        // Checks if it was player one or two that made choice, and stores that choice
         if (snap.child('/playerOne').exists()) {
             playerOneChoice = snap.child('/playerOne').val();
         }
@@ -94,11 +114,14 @@ $(document).ready(function () {
 
     })
 
+    // Listens to messages added to chat
     chat.on('child_added', function (snap){
+        
+        // When message comes in, grab it's content, and push that into a new div
         var message = snap.val();
         var newChat = $('<div>').text(message).attr('class', 'chatMessage');
 
-        
+        // Check for alert messages, if none are found, determine if message is from local player or not and apply appropriate class for style
         if (message.includes('joined')){
             newChat.addClass('joined');
         } else if (message.includes('disconnected')){
@@ -107,8 +130,11 @@ $(document).ready(function () {
             newChat.addClass('yourChat');
         };
 
+        // If the player is still connected, add it to the chat windo
         if (playerName === playerOne.name || playerName === playerTwo.name) {
         newChat.appendTo('#chatWindow');
+
+        // Automatically move the scroll position as the messages extend past what can be seen in initial window
         $('#chatWindow').scrollTop($('#chatWindow')[0].scrollHeight);
         };
     })
