@@ -1,7 +1,5 @@
 $(document).ready(function () {
 
-    
-
     var playerOneChoice;
     var playerTwoChoice;
     var playerOne;
@@ -11,9 +9,10 @@ $(document).ready(function () {
     var db = firebase.database();
     var turn = db.ref('/turn')
     var choices = db.ref('/choice');
-    var chat = db.ref('/chat')
+    var chat = db.ref('/chat');
+    var users = db.ref('/users');
 
-    db.ref('/users').on('value', function (snap) {
+    users.on('value', function (snap) {
 
         playOneExist = snap.child('/one').exists();
         playerOne = snap.child('/one').val();
@@ -22,9 +21,11 @@ $(document).ready(function () {
         playerTwo = snap.child('/two').val();
 
         if (playOneExist && playTwoExist) {
-            $('#status').text('We have two players! Time to begin!');
+            $('#starting').text('We have two players! Time to begin!');
+            $('#starting').show();
 
-            $('#outcome').text('');
+            $('#outcome').hide();
+            $('#status').hide();
 
             $('#pOneWin').text(playerOne.wins);
             $('#pOneLoss').text(playerOne.losses);
@@ -40,6 +41,9 @@ $(document).ready(function () {
         if (!playOneExist || !playTwoExist) {
             turn.remove();
             choices.remove();
+
+            $('#outcome').text('Waiting on players');
+
         }
 
         if (!playOneExist && !playTwoExist) {
@@ -51,6 +55,23 @@ $(document).ready(function () {
         console.log("The read failed: " + errorObject.code);
 
     });
+
+    users.on('child_removed', function (snap){
+        player = snap.val().name;
+
+        chat.push(player + ' has disconnected!')
+
+        $('#waitingOne').hide();
+        $('#waitingTwo').hide();
+        $('.choiceOne').hide();
+        $('.choiceTwo').hide();
+
+        if (playerName === playerOne.name || playerName === playerTwo.name){
+        $('#status').text('Sorry! Your opponent has left the game! Waiting for another to join');
+        $('#status').show();
+        };
+
+    })
 
     turn.on('value', function (snap) {
 
@@ -114,7 +135,7 @@ $(document).ready(function () {
 
                 player.onDisconnect().remove();
 
-                $('#status').text('Welcome ' + playerName + '! Waiting on Player 2!');
+                $('#status').text('Welcome ' + playerName + '!');
 
                 $('#currentPlayer').text('Current Player: ' + playerName);
 
@@ -161,6 +182,8 @@ $(document).ready(function () {
     // Running of game for player One
     function gamePlayerOne() {
 
+        $('#starting').hide();
+
         if (playerName === playerOne.name) {
 
             $('#opponent').text('Your opponent is ' + playerTwo.name);
@@ -186,6 +209,7 @@ $(document).ready(function () {
                 var choice = $(this).text();
 
                 $('#status').text('You chose ' + choice);
+                $('#status').show();
 
                 db.ref('/choice/playerOne').set(choice);
 
@@ -205,6 +229,7 @@ $(document).ready(function () {
             // Show the status
             $('#waitingTwo').show();
             $('.choiceTwo').hide();
+            $('#waitingOne').hide();
 
         };
 
@@ -240,10 +265,9 @@ $(document).ready(function () {
                 db.ref('/choice/playerTwo').set(choice);
 
                 $('#status').text('You chose ' + choice);
+                $('#status').show();
 
                 setTimeout(function () { turn.set(3) }, 1000);
-
-
 
             });
 
@@ -265,8 +289,10 @@ $(document).ready(function () {
         // Display Player One won in outcome
         $('#outcome').text(playerOne.name + ' won!');
         $('#status').text('Stay put! A new game will begin shortly!');
+        $('#outcome').show();
+        $('#status').show();
 
-        // After 2 seconds, update info in database, will automatically trigger new game
+        // After 4 seconds, update info in database, will automatically trigger new game
         setTimeout(function () {
 
 
@@ -278,7 +304,7 @@ $(document).ready(function () {
             playLoss++
             db.ref().child('/users/two/losses').set(playLoss);
 
-        }, 2000);
+        }, 4000);
 
     };
 
@@ -287,8 +313,11 @@ $(document).ready(function () {
         // Display Player Two won in outcome
         $('#outcome').text(playerTwo.name + ' won!');
         $('#status').text('Stay put! A new game will begin shortly!');
+        $('#outcome').show();
+        $('#status').show();
 
-        // After 2 seconds, update info in database, will automatically trigger new game
+
+        // After 4 seconds, update info in database, will automatically trigger new game
         setTimeout(function () {
 
             var playWins = playerTwo.wins;
@@ -299,7 +328,7 @@ $(document).ready(function () {
             playLoss++
             db.ref().child('/users/one/losses').set(playLoss);
 
-        }, 2000);
+        }, 4000);
     };
 
     function tie() {
@@ -328,6 +357,7 @@ $(document).ready(function () {
 
         $('.choiceTwo').hide();
         $('#waitingTwo').show();
+        $('#waitingOne').show();
 
         console.log('hitting outcome function');
 
@@ -384,6 +414,8 @@ $(document).ready(function () {
     $('#makePlayer').on('click', makePlayer);
 
     $('#newChat').on('click', newChat);
+
+    $('#chatWindow').empty();
 
 
 });
