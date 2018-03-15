@@ -12,7 +12,7 @@ $(document).ready(function () {
 
     var playerName;
 
-    var turn;
+    var turn = db.ref('/turn')
 
     db.ref('/users').on('value', function (snap) {
 
@@ -25,9 +25,13 @@ $(document).ready(function () {
         playerTwo = snap.child('/two').val();
 
         if (playOneExist && playTwoExist) {
-            $('#outcome').text('Let\'s begin!');
+            $('#outcome').text('We have two players! Time to begin!');
 
-            setTimeout(gamePlayerOne, 1500);
+            setTimeout(gamePlayerOne, 2000);
+        }
+
+        if (!playOneExist || !playTwoExist) {
+            turn.set(1);
         }
 
         console.log(playOneExist);
@@ -38,12 +42,14 @@ $(document).ready(function () {
 
     });
 
-    db.ref('/turn').on('value', function(snap){
+    turn.on('value', function(snap){
 
         console.log(snap.val());
 
         if (snap.val() === 2) {
             gamePlayerTwo();
+        } else if (snap.val() === 3) {
+            outcome();
         }
     })
 
@@ -70,7 +76,14 @@ $(document).ready(function () {
 
                 player.onDisconnect().remove();
 
+                $('#outcome').text('Welcome ' + playerName + '! Waiting on Player 2!');
+
+                $('#currentPlayer').text('Current Player: ' + playerName);
+
                 $('#newPlayer').val('');
+
+
+                turn.set(1);
 
                 console.log(playerName);
 
@@ -89,11 +102,13 @@ $(document).ready(function () {
 
                 player.onDisconnect().remove();
 
+                $('#currentPlayer').text('Current Player: ' + playerName);
+
                 $('#newPlayer').val('');
 
                 console.log(playerName);
 
-                db.ref('/turn').set(1);
+                turn.set(1);
 
             };
 
@@ -111,6 +126,8 @@ $(document).ready(function () {
 
         if (playerName === playerOne.name) {
 
+            $('#opponent').text('Your opponent is ' + playerTwo.name);
+
             // Set text for player one's choices
             $('#rockOne').text('rock');
             $('#paperOne').text('paper');
@@ -122,7 +139,20 @@ $(document).ready(function () {
 
             $('#outcome').text(playerName + ' make your choice!')
 
+            // Once player one has clicked their selection
+        $('.choiceOne').on('click', function () {
+
+            playerOneChoice = $(this).text();
+
+            $('#outcome').text('You chose ' + playerOneChoice);
+
+            turn.set(2);
+
+        });
+
         } else if (playerName === playerTwo.name) {
+
+            $('#opponent').text('Your opponent is ' + playerOne.name);
 
             // Set text for player two's status
             $('#waitingTwo').text('Waiting on ' + playerOne.name);
@@ -134,15 +164,6 @@ $(document).ready(function () {
             $('.choiceTwo').hide();
 
         };
-
-        // Once player one has clicked their selection
-        $('.choiceOne').on('click', function () {
-
-            playerOneChoice = $(this).text();
-
-            db.ref('/turn').set(2);
-
-        });
 
     };
 
@@ -162,12 +183,18 @@ $(document).ready(function () {
             $('.choiceTwo').show();
             $('#waitingTwo').hide();
 
+            $('#outcome').text(playerName + ' make your choice!')
+
             // Once player one has clicked their selection
             $('.choiceTwo').on('click', function () {
 
                 playerTwoChoice = $(this).text();
 
-                outcome();
+                $('#waitingTwo').text('You chose ' + playerTwoChoice);
+
+                turn.set(3);
+
+                
 
             });
 
@@ -184,7 +211,7 @@ $(document).ready(function () {
 
     };
 
-    /* function playerOneWins() {
+    function playerOneWins() {
  
         // Update player one's wins on database
         var playWins = playerOne.wins;
@@ -251,9 +278,13 @@ $(document).ready(function () {
             };
         };
  
-    }; */
+    };
 
     $('#makePlayer').on('click', makePlayer);
+
+    function outcome(){
+        console.log('winner');
+    }
 
 
 });
