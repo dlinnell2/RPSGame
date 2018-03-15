@@ -11,7 +11,7 @@ div {
     min-height: 200px;
 }
 
-#outcome, .player {
+.info, .player {
     border: 2px solid black;
 }
 
