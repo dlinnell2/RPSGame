@@ -15,3 +15,12 @@ div {
     border: 2px solid black;
 }
 
+.chat {
+    max-height: 300px;
+    border: 2px solid black;
+}
+
+#chatWindow {
+    background-color: white;
+}
+

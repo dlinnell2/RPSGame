@@ -14,8 +14,6 @@ $(document).ready(function () {
 
     var choices = db.ref('/choice');
 
-    var choice;
-
     db.ref('/users').on('value', function (snap) {
 
         playOneExist = snap.child('/one').exists();
@@ -30,6 +28,14 @@ $(document).ready(function () {
             $('#status').text('We have two players! Time to begin!');
 
             $('#outcome').text('');
+
+            $('#pOneWin').text(playerOne.wins);
+            $('#pOneLoss').text(playerOne.losses);
+            $('#pOneTie').text(playerOne.ties);
+
+            $('#pTwoWin').text(playerTwo.wins);
+            $('#pTwoLoss').text(playerTwo.losses);
+            $('#pTwoTie').text(playerTwo.ties);
 
             setTimeout(gamePlayerOne, 2000);
         }
@@ -46,7 +52,7 @@ $(document).ready(function () {
 
     });
 
-    turn.on('value', function(snap){
+    turn.on('value', function (snap) {
 
         console.log(snap.val());
 
@@ -57,14 +63,14 @@ $(document).ready(function () {
         }
     })
 
-    choices.on('value', function(snap){
+    choices.on('value', function (snap) {
 
-        if(snap.child('/playerOne').exists()){
+        if (snap.child('/playerOne').exists()) {
             playerOneChoice = snap.child('/playerOne').val();
         }
 
-        if(snap.child('/playerTwo').exists()){
-            playerTwoChoice = snap.child('/playerOne').val();
+        if (snap.child('/playerTwo').exists()) {
+            playerTwoChoice = snap.child('/playerTwo').val();
         }
 
     })
@@ -160,17 +166,17 @@ $(document).ready(function () {
             $('#status').text(playerName + ' make your choice!')
 
             // Once player one has clicked their selection
-        $('.choiceOne').on('click', function () {
+            $('.choiceOne').on('click', function () {
 
-            choice = $(this).text();
+                var choice = $(this).text();
 
-            $('#status').text('You chose ' + choice);
+                $('#status').text('You chose ' + choice);
 
-            db.ref('/choice/playerOne').set(choice);
+                db.ref('/choice/playerOne').set(choice);
 
-            turn.set(2);
+                turn.set(2);
 
-        });
+            });
 
         } else if (playerName === playerTwo.name) {
 
@@ -214,15 +220,15 @@ $(document).ready(function () {
             // Once player one has clicked their selection
             $('.choiceTwo').on('click', function () {
 
-                choice = $(this).text();
+                var choice = $(this).text();
 
                 db.ref('/choice/playerTwo').set(choice);
 
                 $('#status').text('You chose ' + choice);
 
-                setTimeout(function (){turn.set(3)}, 1000);
+                setTimeout(function () { turn.set(3) }, 1000);
 
-                
+
 
             });
 
@@ -240,45 +246,65 @@ $(document).ready(function () {
     };
 
     function playerOneWins() {
- 
-        // Update player one's wins on database
-        var playWins = playerOne.wins;
-        playWins++
-        db.ref().child('/users/one/wins').set(playWins);
- 
-        // Update player two's loss on database
-        var playLoss = playerTwo.losses;
-        playLoss++
-        db.ref().child('/users/two/losses').set(playLoss);
- 
-    };
- 
-    function playerTwoWins() {
- 
-        // Update player two's wins on database
-        var playWins = playerTwo.wins;
-        playWins++
-        db.ref().child('/users/two/wins').set(playWins);
- 
-        // Update player one's loss on database
-        var playLoss = playerOne.losses;
-        playLoss++
-        db.ref().child('/users/one/losses').set(playLoss);
+
+        // Display Player One won in outcome
+        $('#outcome').text(playerOne.name + ' won!');
+        $('#status').text('Stay put! A new game will begin shortly!');
+
+        // After 2 seconds, update info in database, will automatically trigger new game
+        setTimeout(function () {
+
+
+            var playWins = playerOne.wins;
+            playWins++
+            db.ref().child('/users/one/wins').set(playWins);
+
+            var playLoss = playerTwo.losses;
+            playLoss++
+            db.ref().child('/users/two/losses').set(playLoss);
+
+        }, 2000);
+
     };
 
-    function tie () {
+    function playerTwoWins() {
+
+        // Display Player Two won in outcome
+        $('#outcome').text(playerTwo.name + ' won!');
+        $('#status').text('Stay put! A new game will begin shortly!');
+
+        // After 2 seconds, update info in database, will automatically trigger new game
+        setTimeout(function () {
+
+            var playWins = playerTwo.wins;
+            playWins++
+            db.ref().child('/users/two/wins').set(playWins);
+
+            var playLoss = playerOne.losses;
+            playLoss++
+            db.ref().child('/users/one/losses').set(playLoss);
+
+        }, 2000);
+    };
+
+    function tie() {
 
         //Display that players tied in outcome
         $('#outcome').text('Tie!')
         $('#status').text('Stay put! A new game will begin shortly!')
 
-        var tie = playerOne.ties;
-        tie++
-        //db.ref().child('/users/one/ties').set(tie);
-        //db.ref().child('/users/two/ties').set(tie);
+        // After 2 seconds, update information in database, will trigger new game
+        setTimeout(function () {
+
+            var tie = playerOne.ties;
+            tie++
+            db.ref().child('/users/one/ties').set(tie);
+            db.ref().child('/users/two/ties').set(tie);
+
+        }, 2000);
 
     };
- 
+
     // Evaluate a winner
     function outcome() {
 
@@ -289,44 +315,46 @@ $(document).ready(function () {
         $('#waitingTwo').show();
 
         console.log('hitting outcome function');
- 
+
+        console.log(playerOneChoice, playerTwoChoice);
+
         if (playerOneChoice === playerTwoChoice) {
 
             console.log('getting into tie');
- 
+
             tie();
- 
+
         } else if (playerOneChoice === 'rock') {
- 
+
             if (playerTwoChoice === 'scissors') {
                 playerOneWins();
- 
+
             } else if (playerTwoChoice === 'paper') {
-                playerTwoWins(); 
- 
+                playerTwoWins();
+
             };
- 
+
         } else if (playerOneChoice === 'scissors') {
- 
+
             if (playerTwoChoice === 'paper') {
                 playerOneWins();
- 
+
             } else if (playerTwoChoice === 'rock') {
                 playerTwoWins();
- 
+
             };
- 
+
         } else if (playerOneChoice === 'paper') {
- 
+
             if (playerTwoChoice === 'rock') {
                 playerOneWins();
- 
+
             } else if (playerTwoChoice === 'scissors') {
                 playerTwoWins();
- 
+
             };
         };
- 
+
     };
 
     $('#makePlayer').on('click', makePlayer);
