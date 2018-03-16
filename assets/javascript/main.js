@@ -26,7 +26,7 @@ $(document).ready(function () {
 
         // If both players are present
         if (playOneExist && playTwoExist) {
-            
+
             // Let players know the game is about to start
             $('#starting').text('We have two players! Time to begin!');
             $('#starting').show();
@@ -67,7 +67,7 @@ $(document).ready(function () {
     });
 
     // Triggers when a user leaves the came
-    users.on('child_removed', function (snap){
+    users.on('child_removed', function (snap) {
 
         // Grab that users name and send a message on chat
         player = snap.val().name;
@@ -80,9 +80,9 @@ $(document).ready(function () {
         $('.choiceTwo').hide();
 
         // Display a status only to the player that is still connected
-        if (playerName === playerOne.name || playerName === playerTwo.name){
-        $('#status').text('Sorry! Your opponent has left the game! Waiting for another to join');
-        $('#status').show();
+        if (playerName === playerOne.name || playerName === playerTwo.name) {
+            $('#status').text('Sorry! Your opponent has left the game! Waiting for another to join');
+            $('#status').show();
         };
 
     })
@@ -115,27 +115,27 @@ $(document).ready(function () {
     })
 
     // Listens to messages added to chat
-    chat.on('child_added', function (snap){
-        
+    chat.on('child_added', function (snap) {
+
         // When message comes in, grab it's content, and push that into a new div
         var message = snap.val();
         var newChat = $('<div>').text(message).attr('class', 'chatMessage');
 
         // Check for alert messages, if none are found, determine if message is from local player or not and apply appropriate class for style
-        if (message.includes('joined')){
+        if (message.includes('joined')) {
             newChat.addClass('joined');
-        } else if (message.includes('disconnected')){
+        } else if (message.includes('disconnected')) {
             newChat.addClass('left');
-        } else if (message.startsWith(playerName)){
+        } else if (message.startsWith(playerName)) {
             newChat.addClass('yourChat');
         };
 
-        // If the player is still connected, add it to the chat windo
+        // If the player is still connected, add it to the chat window
         if (playerName === playerOne.name || playerName === playerTwo.name) {
-        newChat.appendTo('#chatWindow');
+            newChat.appendTo('#chatWindow');
 
-        // Automatically move the scroll position as the messages extend past what can be seen in initial window
-        $('#chatWindow').scrollTop($('#chatWindow')[0].scrollHeight);
+            // Automatically move the scroll position as the messages extend past what can be seen in initial window
+            $('#chatWindow').scrollTop($('#chatWindow')[0].scrollHeight);
         };
     })
 
@@ -145,14 +145,15 @@ $(document).ready(function () {
 
         event.preventDefault();
 
+        // Checks if we are still waiting for a player
         if (!(playOneExist && playTwoExist)) {
 
+            // If there is not a player one in database
             if (!playOneExist) {
 
+                // Grab the player name from form, and set player one in database with initial values
                 playerName = $('#newPlayer').val().trim();
-
                 var player = db.ref('/users/one');
-
                 player.set({
                     name: playerName,
                     wins: 0,
@@ -160,24 +161,26 @@ $(document).ready(function () {
                     ties: 0,
                 });
 
+                // Remove the player from the database when they disconnect
                 player.onDisconnect().remove();
 
+                // Display information on new player
                 $('#status').text('Welcome ' + playerName + '!');
-
                 $('#currentPlayer').text('Current Player: ' + playerName);
-
                 $('#newPlayer').val('');
 
+                // Set turn to 1
                 turn.set(1);
 
+                // Create a chat message that this player has joined
                 chat.push(playerName + ' has joined!')
 
+                // if there is a player one, but not a player two
             } else if (!playTwoExist) {
 
+                // Grab the player name from form, and set player two in database with initial values
                 playerName = $('#newPlayer').val().trim();
-
                 var player = db.ref('/users/two');
-
                 player.set({
                     name: playerName,
                     wins: 0,
@@ -185,21 +188,23 @@ $(document).ready(function () {
                     ties: 0,
                 });
 
+                // Remove the player from the database when they disconnect
                 player.onDisconnect().remove();
 
+                // Display information on new player
                 $('#status').text('Welcome ' + playerName + '!');
-
                 $('#currentPlayer').text('Current Player: ' + playerName);
-
                 $('#newPlayer').val('');
 
+                // Set turn to 1
                 turn.set(1);
 
+                // Create a chat message that this player has joined
                 chat.push(playerName + ' has joined!')
 
             };
 
-
+            // If both players are present
         } else {
 
             alert('Sorry, this game is full');
@@ -214,6 +219,7 @@ $(document).ready(function () {
         $('#outcome').hide();
         $('#starting').hide();
 
+        // Showing locally on player one's browser
         if (playerName === playerOne.name) {
 
             $('#opponent').text('Your opponent is ' + playerTwo.name);
@@ -236,6 +242,7 @@ $(document).ready(function () {
             // Once player one has clicked their selection
             $('.choiceOne').on('click', function () {
 
+                // Store the choice on the database and show in their browser
                 var choice = $(this).text();
 
                 $('#status').text('You chose ' + choice);
@@ -243,10 +250,12 @@ $(document).ready(function () {
 
                 db.ref('/choice/playerOne').set(choice);
 
+                // Change turn to 2 to trigger player two's turn
                 turn.set(2);
 
             });
 
+            // Showing locally on player two's browser
         } else if (playerName === playerTwo.name) {
 
             $('#opponent').text('Your opponent is ' + playerOne.name);
@@ -270,6 +279,7 @@ $(document).ready(function () {
 
         console.log(playerName);
 
+        // Showing locally on player two's browser
         if (playerName === playerTwo.name) {
 
             // Set text for player two's choices
@@ -290,6 +300,7 @@ $(document).ready(function () {
             // Once player one has clicked their selection
             $('.choiceTwo').on('click', function () {
 
+                // Store the choice to the database
                 var choice = $(this).text();
 
                 db.ref('/choice/playerTwo').set(choice);
@@ -297,10 +308,12 @@ $(document).ready(function () {
                 $('#status').text('You chose ' + choice);
                 $('#status').show();
 
+                // After 1 second, update turn to 3 to trigger outcome function
                 setTimeout(function () { turn.set(3) }, 1000);
 
             });
 
+            // Showing locally on player one's browser
         } else if (playerName === playerOne.name) {
 
             // Set text for player two's status
@@ -325,14 +338,9 @@ $(document).ready(function () {
         // After 4 seconds, update info in database, will automatically trigger new game
         setTimeout(function () {
 
+            db.ref().child('/users/one/wins').set(playerOne.wins + 1);
 
-            var playWins = playerOne.wins;
-            playWins++
-            db.ref().child('/users/one/wins').set(playWins);
-
-            var playLoss = playerTwo.losses;
-            playLoss++
-            db.ref().child('/users/two/losses').set(playLoss);
+            db.ref().child('/users/two/losses').set(playerTwo.losses + 1);
 
         }, 4000);
 
@@ -348,17 +356,12 @@ $(document).ready(function () {
         $('#outcome').show();
         $('#status').show();
 
-
         // After 4 seconds, update info in database, will automatically trigger new game
         setTimeout(function () {
 
-            var playWins = playerTwo.wins;
-            playWins++
-            db.ref().child('/users/two/wins').set(playWins);
+            db.ref().child('/users/two/wins').set(playerTwo.wins + 1);
 
-            var playLoss = playerOne.losses;
-            playLoss++
-            db.ref().child('/users/one/losses').set(playLoss);
+            db.ref().child('/users/one/losses').set(playerOne.losses + 1);
 
         }, 4000);
 
@@ -376,10 +379,8 @@ $(document).ready(function () {
         // After 2 seconds, update information in database, will trigger new game
         setTimeout(function () {
 
-            var tie = playerOne.ties;
-            tie++
-            db.ref().child('/users/one/ties').set(tie);
-            db.ref().child('/users/two/ties').set(tie);
+            db.ref().child('/users/one/tie').set(playerOne.ties + 1);
+            db.ref().child('/users/two/tie').set(playerTwo.ties + 1);
 
         }, 4000);
 
@@ -397,7 +398,10 @@ $(document).ready(function () {
         $('#waitingTwo').show();
         $('#waitingOne').show();
 
+        // Checks first for ties, then for loss or victory depending on what player one chose
         if (playerOneChoice === playerTwoChoice) {
+
+            console.log('tie')
 
             tie();
 
@@ -405,9 +409,11 @@ $(document).ready(function () {
 
             if (playerTwoChoice === 'scissors') {
                 playerOneWins();
+                console.log('win 1');
 
             } else if (playerTwoChoice === 'paper') {
                 playerTwoWins();
+                console.log('win 2');
 
             };
 
@@ -415,9 +421,11 @@ $(document).ready(function () {
 
             if (playerTwoChoice === 'paper') {
                 playerOneWins();
+                console.log('win 3');
 
             } else if (playerTwoChoice === 'rock') {
                 playerTwoWins();
+                console.log('win 4');
 
             };
 
@@ -425,34 +433,43 @@ $(document).ready(function () {
 
             if (playerTwoChoice === 'rock') {
                 playerOneWins();
+                console.log('win 5');
 
             } else if (playerTwoChoice === 'scissors') {
                 playerTwoWins();
+                console.log('win 6');
 
             };
         };
 
     };
 
-    function newChat (){
+    // Creating a new chat message
+    function newChat() {
 
         event.preventDefault();
 
-        if (playerName){
-        
-        var message = playerName + ': ' + $('#chatMessage').val().trim();
-        chat.push(message);
+        // If the user has been added to database, allow them to use chat
+        if (playerName) {
 
+            // Format message then push to chat on database
+            var message = playerName + ': ' + $('#chatMessage').val().trim();
+            chat.push(message);
+
+            // Tell the user to enter the game before they can use chat
         } else {
             alert('Please enter your name to begin playing!');
         }
 
+        // Reset the form
         $('#chatMessage').val('');
-        
+
     }
 
+    // Fire makePlayer function when user clicks button
     $('#makePlayer').on('click', makePlayer);
 
+    // Fire newChat function when user clicks button
     $('#newChat').on('click', newChat);
 
 });
